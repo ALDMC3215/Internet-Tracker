@@ -1,147 +1,82 @@
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Internet Package Tracker</title>
-<style>
-:root{
-  --bg:#0d0d0d;
-  --glass:rgba(255,255,255,0.08);
-  --text:#f0f0f0;
-  --accent:#ff6ff2;
-  --irancell:#FFD200;
-  --mci:#1E88E5;
-  --radius:12px;
-  --transition:0.3s ease;
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مدیریت مالی شخصی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Vazirmatn', 'sans-serif'],
+            },
+            colors: {
+              turquoise: {
+                '50': '#f0fdfa', '100': '#ccfbf1', '200': '#99f6e4',
+                '300': '#5eead4', '400': '#2dd4bf', '500': '#14b8a6',
+                '600': '#0d9488', '700': '#0f766e', '800': '#115e59',
+                '900': '#134e4a', '950': '#042f2e',
+              },
+              income: {
+                DEFAULT: '#22c55e', // green-500
+              },
+              expense: {
+                DEFAULT: '#ef4444', // red-500
+              },
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Vazirmatn', sans-serif;
+      }
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .dark ::-webkit-scrollbar-track {
+        background: #1f2937; /* gray-800 */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #555;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #777;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.1/",
+    "react": "https://esm.sh/react@^19.1.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/"
+  }
 }
-*{box-sizing:border-box;}
-body{margin:0;font-family:system-ui, sans-serif;background:var(--bg);color:var(--text);}
-nav{display:flex;gap:1rem;padding:1rem;justify-content:center;}
-nav button{background:var(--glass);border:none;color:var(--text);padding:0.5rem 1rem;border-radius:var(--radius);cursor:pointer;transition:background var(--transition);}nav button:hover,nav button:focus{background:rgba(255,255,255,0.2);outline:2px solid var(--accent);}
-.tab{display:none;padding:1rem;max-width:960px;margin:auto;}
-.tab.active{display:block;}
-form, .card, table{background:var(--glass);backdrop-filter:blur(10px);padding:1rem;border-radius:var(--radius);margin-bottom:1rem;}input,select,textarea{width:100%;padding:0.5rem;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:var(--text);}input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);}button.primary{background:var(--accent);color:#000;}
-.card{position:relative;}
-.card .star{position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--accent);}
-.progress{height:8px;background:rgba(255,255,255,0.2);border-radius:4px;margin:0.5rem 0;overflow:hidden;}
-.progress .bar{height:100%;background:var(--accent);}
-.chip{display:inline-block;padding:0.2rem 0.5rem;border-radius:var(--radius);font-size:0.8rem;margin-right:0.25rem;}
-.chip.irancell{background:var(--irancell);color:#000;}
-.chip.mci{background:var(--mci);}
-.actions button{margin-right:0.5rem;}
-#budgetReport div{margin-bottom:0.3rem;}
-#usageChart{width:100%;height:200px;background:var(--glass);border-radius:var(--radius);}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
-@media(max-width:600px){nav{flex-direction:column;align-items:center;} .actions{display:flex;flex-direction:column;} }
-</style>
-</head>
-<body>
-<nav>
-  <button data-tab="home" class="active">Home</button>
-  <button data-tab="reports">Reports</button>
-  <button data-tab="settings">Settings</button>
-</nav>
-<section id="home" class="tab active" aria-label="Home">
-  <h2>Add / Edit Package</h2>
-  <form id="pkgForm">
-    <input type="hidden" id="pkgId" />
-    <label>Name<input id="pkgName" required></label>
-    <label>Operator<select id="pkgOp"><option value="irancell">Irancell</option><option value="mci">MCI</option><option value="other">Other</option></select></label>
-    <label>Priority<select id="pkgPrio"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></label>
-    <label>Purchase Date<div class="date-field" id="pkgStart"></div></label>
-    <label>Duration (e.g., 180 days or 6 months)<input id="pkgDur" placeholder="180 days" required></label>
-    <label>Size (e.g., 300 GB)<input id="pkgSize" placeholder="300 GB" required></label>
-    <label>Price (Toman, with tax)<input id="pkgPrice" type="number" required></label>
-    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-      <button type="button" id="presetIrancell">Irancell Preset</button>
-      <button type="button" id="presetMci">MCI Preset</button>
-    </div>
-    <button class="primary" style="margin-top:0.5rem;">Save Package</button>
-  </form>
-  <h2>Packages</h2>
-  <div id="pkgList"></div>
-  <h2>Budget Report</h2>
-  <div id="budgetReport"></div>
-  <button id="toggleChart">Show Chart</button>
-  <canvas id="usageChart" hidden></canvas>
-  <h2>Daily Log</h2>
-  <form id="logForm">
-    <label>Date<div class="date-field" id="logDate"></div></label>
-    <label>Remaining (e.g., 250 GB)<input id="logRemain" required></label>
-    <label>Note<textarea id="logNote"></textarea></label>
-    <button class="primary">Add Log</button>
-  </form>
-  <table id="logTable" aria-label="Daily logs"><thead><tr><th>Date</th><th>Remaining</th><th>Note</th><th></th></tr></thead><tbody></tbody></table>
-</section>
-<section id="reports" class="tab" aria-label="Reports">
-  <h2>Cost Analytics</h2>
-  <table id="reportTable"><thead><tr><th>Name</th><th>Size GB</th><th>Price</th><th>Cost/GB</th><th>Monthly Eq</th><th>Days Left</th><th>Forecast Finish</th></tr></thead><tbody></tbody></table>
-  <button id="exportReport">Export report.json</button>
-</section>
-<section id="settings" class="tab" aria-label="Settings">
-  <h2>Settings</h2>
-  <label>Rebalance Horizon (days)<input id="setHorizon" type="number" value="7"></label>
-  <label><input type="checkbox" id="calToggle"> Use Jalali Calendar</label>
-  <div id="storageOps"></div>
-</section>
-<script>
-// State
-let packages=[]; // {id,name,operator,priority,start,duration,size,price}
-let logs={}; // packageId -> [{date,remaining,note}]
-let settings={horizon:7,calendar:'gregorian'};
-let selectedPkg=null;
-let dirHandle=null;
-// Utilities
-function parseSize(str){str=str.trim().toLowerCase();let n=parseFloat(str);if(str.includes('mb')) return n/1024;return n;}
-function parseDuration(str,start){str=str.trim().toLowerCase();let n=parseFloat(str);if(str.includes('month')){let d=new Date(start);let t=new Date(d);t.setMonth(t.getMonth()+n);return Math.round((t-d)/86400000);}return n;}
-function formatDate(d){return d.toISOString().slice(0,10);}
-// Jalali/Gregorian conversion
-const g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];
-function toJalali(gy,gm,gd){let gy2=gy-(gm>2?0:1);let days=365*gy+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)-80+gd+g_d_m[gm-1];let jy=979+33*Math.floor(days/12053);days%=12053;jy+=4*Math.floor(days/1461);days%=1461;if(days>=366){jy+=Math.floor((days-1)/365);days=(days-1)%365;}let jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30);let jd=1+(days<186?days%31:(days-186)%30);return[jy,jm,jd];}
-function toGregorian(jy,jm,jd){jy-=979;let days=365*jy+Math.floor(jy/33)*8+Math.floor((jy%33+3)/4)+jd-1;days+=jm<7?(jm-1)*31:(jm-7)*30+186;let gy=1600+400*Math.floor(days/146097);days%=146097;let leap=true;if(days>=36525){days--;gy+=100*Math.floor(days/36524);days%=36524;if(days>=365) days++; else leap=false;}gy+=4*Math.floor(days/1461);days%=1461;if(days>=366){leap=false;days--;gy+=Math.floor(days/365);days%=365;}let gd,gm;const sal=[0,31,(leap?29:28),31,30,31,30,31,31,30,31,30,31];for(gm=1;gm<=12;gm++){let v=sal[gm];if(days<v){gd=days+1;break;}days-=v;}return[gy,gm,gd];}
-function g2j(str){if(!str) return '';let d=new Date(str);let [jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());return `${jy.toString().padStart(4,'0')}-${jm.toString().padStart(2,'0')}-${jd.toString().padStart(2,'0')}`;}
-function j2g(str){if(!str) return '';let [jy,jm,jd]=str.split('-').map(Number);let [gy,gm,gd]=toGregorian(jy,jm,jd);return `${gy.toString().padStart(4,'0')}-${gm.toString().padStart(2,'0')}-${gd.toString().padStart(2,'0')}`;}
-function createDateField(id){const wrap=document.getElementById(id);wrap.innerHTML=`<input class="g-date" type="date"><input class="j-date" type="text" placeholder="YYYY-MM-DD" hidden><small class="hint"></small>`;return wrap;}
-createDateField('pkgStart');createDateField('logDate');
-function updateCalendarUI(){document.querySelectorAll('.date-field').forEach(df=>{const g=df.querySelector('.g-date');const j=df.querySelector('.j-date');const hint=df.querySelector('.hint');if(settings.calendar==='gregorian'){j.hidden=true;g.hidden=false;j.value=g2j(g.value);hint.textContent=j.value?`Jalali: ${j.value}`:'';}else{g.hidden=true;j.hidden=false;g.value=j2g(j.value);hint.textContent=g.value?`Gregorian: ${g.value}`:'';}});}
-// File System Access
-async function chooseFolder(){try{dirHandle=await window.showDirectoryPicker();await loadAll();saveAll();document.getElementById('storageOps').innerText='Auto-save enabled.';}catch(e){console.error(e);}}
-async function getFileHandle(name){try{return await dirHandle.getFileHandle(name,{create:true});}catch(e){return null;}}
-async function saveFile(name,data){if(!dirHandle) return;const handle=await getFileHandle(name);if(!handle) return;const w=await handle.createWritable();await w.write(JSON.stringify(data,null,2));await w.close();}
-async function loadFile(name){try{const file=await (await dirHandle.getFileHandle(name)).getFile();return JSON.parse(await file.text());}catch(e){return null;}}
-async function saveAll(){await saveFile('packages.json',packages);await saveFile('logs.json',logs);await saveFile('settings.json',settings);}
-async function loadAll(){packages=await loadFile('packages.json')||[];logs=await loadFile('logs.json')||{};settings=Object.assign(settings,await loadFile('settings.json')||{});document.getElementById('setHorizon').value=settings.horizon;document.getElementById('calToggle').checked=settings.calendar==='jalali';render();}
-function exportData(){const blob=new Blob([JSON.stringify({packages,logs,settings},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup.json';a.click();}
-function importData(file){const reader=new FileReader();reader.onload=e=>{try{const obj=JSON.parse(e.target.result);packages=obj.packages||[];logs=obj.logs||{};settings=Object.assign(settings,obj.settings||{});render();saveAll();}catch(err){alert('Invalid file');}};reader.readAsText(file);} 
-// UI Rendering
-function renderPackages(){const list=document.getElementById('pkgList');list.innerHTML='';packages.forEach(p=>{const card=document.createElement('div');card.className='card';card.innerHTML=`<button class="star" aria-label="Priority">${'★'.repeat(p.priority)}${'☆'.repeat(2-p.priority)}</button><div><strong>${p.name}</strong></div><div class="progress"><div class="bar" style="width:${calcProgress(p)}%"></div></div><div class="meta"><span class="chip ${p.operator}">${p.operator}</span><span class="chip">${p.size} GB</span><span class="chip">${p.duration} d</span></div><div class="actions"><button class="open">Open</button><button class="edit">Edit</button><button class="delete">Delete</button></div>`;card.querySelector('.star').onclick=()=>{p.priority=(p.priority+1)%3;renderPackages();saveAll();};card.querySelector('.open').onclick=()=>{selectedPkg=p.id;render();};card.querySelector('.edit').onclick=()=>{fillForm(p);};card.querySelector('.delete').onclick=()=>{if(confirm('Delete?')){packages=packages.filter(x=>x.id!==p.id);delete logs[p.id];if(selectedPkg===p.id) selectedPkg=null;render();saveAll();}};list.appendChild(card);});}
-function calcProgress(p){const pkgLogs=logs[p.id]||[];const last=pkgLogs[pkgLogs.length-1];const used=p.size-(last?last.remaining:p.size);return Math.min(100,used/p.size*100);}
-function fillForm(p){document.getElementById('pkgId').value=p.id;document.getElementById('pkgName').value=p.name;document.getElementById('pkgOp').value=p.operator;document.getElementById('pkgPrio').value=p.priority;document.querySelector('#pkgStart .g-date').value=p.start;document.getElementById('pkgDur').value=p.durationRaw;document.getElementById('pkgSize').value=p.sizeRaw;document.getElementById('pkgPrice').value=p.price;updateCalendarUI();}
-function renderBudget(){const div=document.getElementById('budgetReport');div.innerHTML='';if(!selectedPkg){div.textContent='Select a package.';document.getElementById('logForm').hidden=true;document.getElementById('logTable').hidden=true;return;}document.getElementById('logForm').hidden=false;document.getElementById('logTable').hidden=false;const p=packages.find(x=>x.id===selectedPkg);const pkgLogs=logs[p.id]||[];const last=pkgLogs[pkgLogs.length-1];const nowDate=new Date();const start=new Date(p.start);const elapsed=Math.floor((nowDate-start)/86400000);const planned=p.size*(1-elapsed/p.duration);const actual=last?last.remaining:p.size;const deviation=actual-planned;const daysLeft=p.duration-Math.floor((new Date()-start)/86400000);const dailyTarget=p.size/p.duration;const recDaily=actual/Math.max(daysLeft,1);const horizon=settings.horizon;const rebalance=actual/Math.max(Math.min(horizon,daysLeft),1);const costPerGB=(p.price/p.size).toFixed(2);const monthly=(p.price/p.duration*30).toFixed(0);const forecast=forecastFinish(p).toISOString().slice(0,10);div.innerHTML=`<div>Daily target: ${dailyTarget.toFixed(2)} GB</div><div>Rebalance target (${horizon}d): ${rebalance.toFixed(2)} GB</div><div>Deviation: ${deviation.toFixed(2)} GB</div><div>Forecast finish: ${forecast} (plan end ${addDays(start,p.duration).toISOString().slice(0,10)})</div><div>Cost/GB: ${costPerGB}</div><div>Monthly equivalent: ${monthly} T</div>`;renderLogs(p);drawChart(p);}
-function addDays(d,n){const t=new Date(d);t.setDate(t.getDate()+n);return t;}
-function forecastFinish(p){const pkgLogs=(logs[p.id]||[]).slice(-7);if(pkgLogs.length>=2){let total=0;for(let i=1;i<pkgLogs.length;i++){const prev=pkgLogs[i-1];const cur=pkgLogs[i];const days=(new Date(cur.date)-new Date(prev.date))/86400000;const used=prev.remaining-cur.remaining;total+=used/days;}const avg=total/(pkgLogs.length-1);if(avg>0){const last=pkgLogs[pkgLogs.length-1];const days=last.remaining/avg;return addDays(new Date(last.date),Math.round(days));}}const last=(logs[p.id]||[]).slice(-1)[0];if(last){const days=last.remaining/(p.size/p.duration);return addDays(new Date(last.date),Math.round(days));}return addDays(new Date(p.start),p.duration);}
-function renderLogs(p){const tbody=document.querySelector('#logTable tbody');tbody.innerHTML='';(logs[p.id]||[]).forEach((l,i)=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${l.date}</td><td>${l.remaining} GB</td><td>${l.note||''}</td><td><button data-i="${i}">Delete</button></td>`;tr.querySelector('button').onclick=()=>{logs[p.id].splice(i,1);renderBudget();saveAll();};tbody.appendChild(tr);});}
-function drawChart(p){const c=document.getElementById('usageChart');if(c.hidden) return;const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);const w=c.width,h=c.height;const start=new Date(p.start);const end=addDays(start,p.duration);ctx.strokeStyle='#444';ctx.strokeRect(0,0,w,h);ctx.font='10px sans-serif';ctx.strokeStyle='var(--accent)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(w,h);ctx.stroke();const pkgLogs=logs[p.id]||[];if(pkgLogs.length){ctx.strokeStyle='#0f0';ctx.beginPath();pkgLogs.forEach((l,i)=>{const x=w*((new Date(l.date)-start)/(end-start));const y=h*(1-l.remaining/p.size);if(i===0) ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();}}
-function renderReports(){const tbody=document.querySelector('#reportTable tbody');tbody.innerHTML='';packages.forEach(p=>{const forecast=forecastFinish(p).toISOString().slice(0,10);const daysLeft=Math.round((addDays(new Date(p.start),p.duration)-new Date())/86400000);const tr=document.createElement('tr');tr.innerHTML=`<td>${p.name}</td><td>${p.size}</td><td>${p.price}</td><td>${(p.price/p.size).toFixed(2)}</td><td>${(p.price/p.duration*30).toFixed(0)}</td><td>${daysLeft}</td><td>${forecast}</td>`;tbody.appendChild(tr);});}
-function render(){renderPackages();renderBudget();renderReports();updateCalendarUI();}
-// Event Listeners
-navButtons=document.querySelectorAll('nav button');navButtons.forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById(btn.dataset.tab).classList.add('active');btn.classList.add('active');});
-
-pkgForm=document.getElementById('pkgForm');pkgForm.onsubmit=e=>{e.preventDefault();const id=document.getElementById('pkgId').value||Date.now();const name=document.getElementById('pkgName').value;const operator=document.getElementById('pkgOp').value;const priority=Number(document.getElementById('pkgPrio').value);const start=document.querySelector('#pkgStart .g-date').value;const durationRaw=document.getElementById('pkgDur').value;const duration=parseDuration(durationRaw,start);const sizeRaw=document.getElementById('pkgSize').value;const size=parseSize(sizeRaw);const price=Number(document.getElementById('pkgPrice').value);const existing=packages.find(p=>p.id==id);const pkg={id,name,operator,priority,start,duration,size,price,durationRaw,sizeRaw};if(existing) Object.assign(existing,pkg);else packages.push(pkg);pkgForm.reset();document.getElementById('pkgId').value='';renderPackages();saveAll();};
-
-document.getElementById('presetIrancell').onclick=()=>{document.getElementById('pkgDur').value='180 days';document.getElementById('pkgSize').value='300 GB';document.getElementById('pkgPrice').value=572000;document.getElementById('pkgOp').value='irancell';};
-document.getElementById('presetMci').onclick=()=>{document.getElementById('pkgDur').value='120 days';document.getElementById('pkgSize').value='80 GB';document.getElementById('pkgPrice').value=360800;document.getElementById('pkgOp').value='mci';};
-
-logForm=document.getElementById('logForm');logForm.onsubmit=e=>{e.preventDefault();if(!selectedPkg) return;const date=document.querySelector('#logDate .g-date').value;const remaining=parseSize(document.getElementById('logRemain').value);const note=document.getElementById('logNote').value;logs[selectedPkg]=logs[selectedPkg]||[];logs[selectedPkg].push({date,remaining,note});logForm.reset();renderBudget();saveAll();};
-
-document.getElementById('toggleChart').onclick=e=>{const c=document.getElementById('usageChart');c.hidden=!c.hidden;drawChart(packages.find(p=>p.id===selectedPkg));e.target.textContent=c.hidden?'Show Chart':'Hide Chart';};
-
-document.getElementById('exportReport').onclick=()=>{const data=[];packages.forEach(p=>{data.push({name:p.name,size:p.size,price:p.price,costPerGB:p.price/p.size,monthly:p.price/p.duration*30,daysLeft:p.duration-Math.floor((new Date()-new Date(p.start))/86400000),forecast:forecastFinish(p).toISOString().slice(0,10)});});const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='report.json';a.click();};
-
-settingsForm=document.getElementById('settings');document.getElementById('setHorizon').onchange=e=>{settings.horizon=Number(e.target.value);saveAll();renderBudget();};document.getElementById('calToggle').onchange=e=>{settings.calendar=e.target.checked?'jalali':'gregorian';updateCalendarUI();saveAll();};
-
-if('showDirectoryPicker' in window){const btn=document.createElement('button');btn.textContent='Choose Storage Folder';btn.onclick=chooseFolder;document.getElementById('storageOps').appendChild(btn);}else{const exp=document.createElement('button');exp.textContent='Export Data';exp.onclick=exportData;const impLabel=document.createElement('label');impLabel.textContent='Import Data';const imp=document.createElement('input');imp.type='file';imp.onchange=e=>importData(e.target.files[0]);impLabel.appendChild(imp);const cont=document.getElementById('storageOps');cont.append(exp,impLabel);}render();
 </script>
-</body>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
